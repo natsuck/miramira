@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Letter For You</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffebf0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            perspective: 1000px;
+        }
+        
+        .envelope-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 700px;
+            margin: 20px;
+        }
+        
+        .envelope {
+            width: 340px;
+            height: 240px;
+            background-color: #ff8fab;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 1s ease;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+        
+        .envelope:hover {
+            transform: translateY(-10px);
+        }
+
+         .envelope {
+            transition: opacity 0.5s ease;
+        }
+
+        
+        .envelope-front {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: #ff8fab;
+            border-radius: 5px;
+            z-index: 2;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 120px;
+            background-color: #ff6b93;
+            clip-path: polygon(0 0, 50% 50%, 100% 0);
+            transform-origin: top;
+            transition: transform 0.5s ease;
+            z-index: 3;
+        }
+        
+        .envelope.open .envelope-flap {
+            transform: rotateX(180deg);
+            z-index: 0;
+        }
+        
+        .envelope-heart {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            transform: rotate(45deg);
+            bottom: 70px;
+        }
+        
+        .envelope-heart:before,
+        .envelope-heart:after {
+            content: '';
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #fff;
+            border-radius: 50%;
+        }
+        
+        .envelope-heart:before {
+            left: -20px;
+        }
+        
+        .envelope-heart:after {
+            top: -20px;
+        }
+        
+        .envelope-text {
+            position: absolute;
+            bottom: 20px;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+        }
+        
+        .letter-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            opacity: 0;
+            transition: all 0.8s ease;
+            transform: translateY(-40px);
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        .envelope.open + .letter-container {
+            opacity: 1;
+            transform: translateY(20px);
+            max-height: 2000px;
+            margin-top: 50px;
+        }
+        
+        .letter {
+            background-color: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        h1 {
+            color: #FF5D8F;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: #555;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .photos {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .photo-placeholder {
+            width: 150px;
+            height: 150px;
+            background-color: #ffd3e0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff6b93;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        
+        .photo-placeholder:hover {
+            transform: scale(1.05);
+        }
+        
+        .photo-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 107, 147, 0.9);
+            border-radius: 10px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 0.9rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            text-align: center;
+        }
+        
+        .heart-btn {
+            background-color: #FF5D8F;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .heart-btn:hover {
+            background-color: #ff4d7d;
+            transform: scale(1.05);
+        }
+        
+        .hidden-message {
+            height: 0;
+            overflow: hidden;
+            transition: height 0.5s ease;
+            font-size: 1.1rem;
+            color: #ff6b93;
+            margin-top: 20px;
+        }
+        
+        .signature {
+            font-family: 'Brush Script MT', cursive;
+            font-size: 1.8rem;
+            color: #ff6b93;
+            margin-top: 40px;
+        }
+        
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        .heart {
+            position: absolute;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-20px) translateX(10px); }
+            50% { transform: translateY(0) translateX(20px); }
+            75% { transform: translateY(20px) translateX(10px); }
+        }
+        
+        @keyframes heartAnimation {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--translate-x), -100vh) rotate(var(--rotate-angle)) scale(var(--scale));
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .envelope {
+                width: 280px;
+                height: 200px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .photo-placeholder {
+                width: 100px;
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts-container" id="heartsContainer"></div>
+    
+    <div class="envelope-wrapper">
+        <div class="envelope" id="envelope">
+            <div class="envelope-flap"></div>
+            <div class="envelope-front">
+                <div class="envelope-heart"></div>
+                <div class="envelope-text">Click to Open</div>
+            </div>
+        </div>
+        
+        <div class="letter-container">
+            <div class="letter">
+                <h1>To My Wonderful Girlfriend</h1>
+                
+                <div class="message">
+                    <p>Hey sweetheart,</p>
+                    <p>I just wanted to take a moment to remind you how special you are to me. Your smile brightens my day, your laugh is my favorite sound, and your love makes everything better.</p>
+                    <p id="personalMessage">You mean the world to me, and I'm so grateful to have you in my life. Every moment with you is a treasure.</p>
+                </div>
+                
+                <div class="photos">
+                    <div class="photo-placeholder" id="photo1">
+                        <img src="src/1.jpg" alt="Photo 1" style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover;">
+                        <div class="photo-message" id="message1">Remember our first date? That was the moment I knew you were special ❤️</div>
+                    </div>
+                    <div class="photo-placeholder" id="photo2">
+                        <img src="src/peborit.jpeg" alt="Photo 2" style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover;">
+                        <div class="photo-message" id="message2">Your smile makes my heart skip a beat every single time ❤️</div>
+                    </div>
+                    <div class="photo-placeholder" id="photo3">
+                        <video src="src/hart.mp4" controls loop style="width: 100%; height: 100%; border-radius: 10px; object-fit: cover;">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="photo-message" id="message3">I cherish every moment we spend together. You're my favorite person ❤️</div>
+                    </div>
+                </div>
+                
+                <button class="heart-btn" id="heartButton">❤️ Click Me ❤️</button>
+                
+                <div class="hidden-message" id="hiddenMessage">
+                    <p>P.S. I've been planning something special for us... I can't wait to surprise you!</p>
+                </div>
+                
+                <div class="signature">With all my love</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Envelope opening functionality
+        const envelope = document.getElementById('envelope');
+
+        envelope.addEventListener('click', function () {
+            this.classList.add('open');
+
+            // Play heart animation when envelope opens
+            createFloatingHearts(20, '50%', '50%');
+
+            // Wait for the flap animation to finish before hiding the envelope
+            setTimeout(() => {
+                this.style.opacity = '0';
+                this.style.pointerEvents = 'none'; // Prevent clicks after hiding
+                setTimeout(() => {
+                    this.style.display = 'none';
+                }, 500); // Wait for fade-out to complete
+            }, 600); // Flap animation duration + slight delay
+        });
+
+        
+        // Floating hearts background
+        function createHearts() {
+            const container = document.getElementById('heartsContainer');
+            const colors = ['#ff6b93', '#ff8fab', '#ffb3c6', '#ffc4d0'];
+            
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.innerHTML = '❤️';
+                    heart.className = 'heart';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.top = Math.random() * 100 + 'vh';
+                    heart.style.fontSize = (Math.random() * 30 + 10) + 'px';
+                    heart.style.animationDelay = Math.random() * 5 + 's';
+                    heart.style.color = colors[Math.floor(Math.random() * colors.length)];
+                    container.appendChild(heart);
+                    
+                    // Remove heart after animation completes to prevent cluttering
+                    setTimeout(() => {
+                        heart.remove();
+                    }, 10000);
+                }, i * 800);
+            }
+        }
+        
+        // Animated hearts when button is clicked
+        function createFloatingHearts(count = 15, sourceX = '50%', sourceY = '30%') {
+            const container = document.body;
+            const heartCount = count || 15;
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.style.position = 'absolute';
+                heart.style.left = sourceX;
+                heart.style.bottom = sourceY;
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heart.style.setProperty('--translate-x', (Math.random() * 200 - 100) + 'px');
+                heart.style.setProperty('--rotate-angle', (Math.random() * 360) + 'deg');
+                heart.style.setProperty('--scale', (Math.random() * 0.5 + 0.8));
+                heart.style.animation = 'heartAnimation 4s forwards';
+                heart.style.animationDelay = (Math.random() * 2) + 's';
+                heart.style.zIndex = '5';
+                container.appendChild(heart);
+                
+                // Remove heart after animation completes
+                setTimeout(() => {
+                    heart.remove();
+                }, 6000);
+            }
+        }
+        
+        // Toggle hidden message on button click
+        document.getElementById('heartButton').addEventListener('click', function() {
+            const hiddenMessage = document.getElementById('hiddenMessage');
+            if (hiddenMessage.style.height === '80px') {
+                hiddenMessage.style.height = '0';
+            } else {
+                hiddenMessage.style.height = '80px';
+                createFloatingHearts(10);
+            }
+        });
+        
+        // Edit personal message
+        document.getElementById('personalMessage').addEventListener('click', function() {
+            const currentText = this.textContent;
+            const newText = prompt('Edit your personal message:', currentText);
+            if (newText !== null && newText.trim() !== '') {
+                this.textContent = newText;
+            }
+        });
+        
+        // Photo message functionality
+        const photos = document.querySelectorAll('.photo-placeholder');
+                photos.forEach(photo => {
+            photo.addEventListener('click', function() {
+                // Find the message element inside this photo
+                const message = this.querySelector('.photo-message');
+                
+                // Toggle message visibility with animation
+                if (message.style.opacity === '1') {
+                    message.style.opacity = '0';
+                    setTimeout(() => {
+                        message.style.pointerEvents = 'none';
+                    }, 300);
+                } else {
+                    // Hide all other messages first
+                    document.querySelectorAll('.photo-message').forEach(msg => {
+                        msg.style.opacity = '0';
+                        msg.style.pointerEvents = 'none';
+                    });
+                    
+                    // Show this message
+                    message.style.opacity = '1';
+                    message.style.pointerEvents = 'auto';
+                    
+                    // Create a small heart burst
+                    createFloatingHearts(5);
+                }
+            });
+        });
+
+        // Create floating hearts on page load
+        window.onload = function() {
+            setInterval(createHearts, 5000);
+            createHearts();
+        };
+    </script>
+</body>
+</html>
